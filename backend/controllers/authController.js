@@ -64,3 +64,21 @@ exports.login = (req, res) => {
     });
   });
 };
+
+exports.updateProfile = (req, res) => {
+  const { name, phone } = req.body
+  const id = req.user.id
+
+  db.query(
+    'UPDATE users SET name = ?, phone = ? WHERE id = ?',
+    [name, phone, id],
+    (err) => {
+      if (err) return res.status(500).json({ message: 'Error updating profile' })
+
+      db.query('SELECT id, name, email, phone, role FROM users WHERE id = ?', [id], (err, results) => {
+        if (err) return res.status(500).json({ message: 'Error fetching updated user' })
+        res.json({ user: results[0] })
+      })
+    }
+  )
+}

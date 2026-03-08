@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import API from '../api/axios'
+import { useAuth } from '../context/AuthContext'
 
 function Login() {
   const navigate = useNavigate()
+  const {login} = useAuth()
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -13,27 +15,25 @@ function Login() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+  e.preventDefault()
+  setLoading(true)
+  setError('')
 
-    try {
-      const res = await API.post('/auth/login', formData)
-      localStorage.setItem('token', res.data.token)
-      localStorage.setItem('user', JSON.stringify(res.data.user))
+  try {
+    const res = await API.post('/auth/login', formData)
+    login(res.data.user, res.data.token)
 
-      // redirect based on role
-      const role = res.data.user.role
-      if (role === 'passenger') navigate('/passenger/dashboard')
-      else if (role === 'driver') navigate('/driver/dashboard')
-      else if (role === 'admin') navigate('/admin/dashboard')
+    const role = res.data.user.role
+    if (role === 'passenger') navigate('/passenger/dashboard')
+    else if (role === 'driver') navigate('/driver/dashboard')
+    else if (role === 'admin') navigate('/admin/dashboard')
 
-    } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong')
-    } finally {
-      setLoading(false)
-    }
+  } catch (err) {
+    setError(err.response?.data?.message || 'Something went wrong')
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{backgroundColor: '#0F172A'}}>
