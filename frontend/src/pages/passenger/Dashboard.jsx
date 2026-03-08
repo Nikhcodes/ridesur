@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import Notifications from '../../components/Notifications'
 
 function PassengerDashboard() {
   const { user, logout } = useAuth()
@@ -16,18 +17,21 @@ function PassengerDashboard() {
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#FACC15' }}>🚕 RideSur</h1>
-            <p className="text-sm mt-1" style={{ color: '#64748B' }}>Welcome back, {user?.name}</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 rounded-xl text-sm font-semibold"
-            style={{ backgroundColor: '#1E293B', color: '#64748B' }}
-          >
-            Logout
-          </button>
-        </div>
+  <div>
+    <h1 className="text-2xl font-bold" style={{ color: '#FACC15' }}>🚕 RideSur</h1>
+    <p className="text-sm mt-1" style={{ color: '#64748B' }}>Welcome back, {user?.name}</p>
+  </div>
+  <div className="flex items-center gap-3">
+    <Notifications />
+    <button
+      onClick={handleLogout}
+      className="px-4 py-2 rounded-xl text-sm font-semibold"
+      style={{ backgroundColor: '#1E293B', color: '#64748B' }}
+    >
+      Logout
+    </button>
+  </div>
+</div>
 
         {/* Quick actions */}
         <div className="rounded-2xl p-6 mb-4" style={{ backgroundColor: '#1E293B' }}>

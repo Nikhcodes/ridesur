@@ -82,3 +82,29 @@ exports.updateProfile = (req, res) => {
     }
   )
 }
+
+exports.getNotifications = (req, res) => {
+  const user_id = req.user.id
+
+  db.query(
+    'SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC',
+    [user_id],
+    (err, results) => {
+      if (err) return res.status(500).json({ message: 'Database error' })
+      res.json(results)
+    }
+  )
+}
+
+exports.markAsRead = (req, res) => {
+  const user_id = req.user.id
+
+  db.query(
+    'UPDATE notifications SET is_read = TRUE WHERE user_id = ?',
+    [user_id],
+    (err) => {
+      if (err) return res.status(500).json({ message: 'Database error' })
+      res.json({ message: 'Notifications marked as read' })
+    }
+  )
+}
