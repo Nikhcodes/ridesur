@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+:root {
+  --color-dark: #0F172A;
+  --color-card: #1E293B;
+  --color-yellow: #FACC15;
+  --color-green: #16A34A;
+  --color-orange: #FB923C;
+  --color-muted: #64748B;
+}
+
+body {
+  background-color: #0F172A;
+  color: #F8FAFC;
+}
