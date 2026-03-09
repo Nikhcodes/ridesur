@@ -15,6 +15,7 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminUsers from './pages/admin/Users'
 import AdminDrivers from './pages/admin/Drivers'
 import AdminRides from './pages/admin/Rides'
+import RateRide from './pages/passenger/RateRide'
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/drivers" element={<AdminDrivers />} />
         <Route path="/admin/rides" element={<AdminRides />} />
+        <Route path="/passenger/rate/:ride_id/:driver_id" element={<RateRide />} />
       </Routes>
     </BrowserRouter>
   )

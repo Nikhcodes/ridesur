@@ -61,8 +61,15 @@ exports.acceptRide = (req, res) => {
 // Get current active ride for driver
 exports.getCurrentRide = (req, res) => {
   const driver_id = req.user.id
+
   db.query(
-    'SELECT * FROM rides WHERE driver_id = ? AND status IN ("accepted", "in_progress") ORDER BY created_at DESC LIMIT 1',
+    `SELECT rides.*, 
+      users.name AS passenger_name,
+      users.phone AS passenger_phone
+     FROM rides 
+     LEFT JOIN users ON rides.passenger_id = users.id
+     WHERE rides.driver_id = ? AND rides.status IN ("accepted", "in_progress") 
+     ORDER BY rides.created_at DESC LIMIT 1`,
     [driver_id],
     (err, results) => {
       if (err) return res.status(500).json({ message: 'Database error' })
@@ -71,7 +78,6 @@ exports.getCurrentRide = (req, res) => {
     }
   )
 }
-
 // Update ride status
 exports.updateRideStatus = (req, res) => {
   const { status } = req.body
@@ -100,12 +106,71 @@ exports.updateRideStatus = (req, res) => {
 // Get all rides for this driver
 exports.getDriverRides = (req, res) => {
   const driver_id = req.user.id
+
   db.query(
-    'SELECT * FROM rides WHERE driver_id = ? ORDER BY created_at DESC',
+    `SELECT rides.*, 
+      users.name AS passenger_name,
+      ratings.score AS rating_score,
+      ratings.comment AS rating_comment
+     FROM rides 
+     LEFT JOIN users ON rides.passenger_id = users.id
+     LEFT JOIN ratings ON ratings.ride_id = rides.id
+     WHERE rides.driver_id = ? 
+     ORDER BY rides.created_at DESC`,
     [driver_id],
     (err, results) => {
       if (err) return res.status(500).json({ message: 'Database error' })
       res.json(results)
+    }
+  )
+}
+
+exports.searchDriverRides = (req, res) => {
+  const driver_id = req.user.id
+  const { search, date } = req.query
+
+  let query = `SELECT rides.*, 
+    users.name AS passenger_name,
+    ratings.score AS rating_score,
+    ratings.comment AS rating_comment
+   FROM rides 
+   LEFT JOIN users ON rides.passenger_id = users.id
+   LEFT JOIN ratings ON ratings.ride_id = rides.id
+   WHERE rides.driver_id = ?`
+
+  let params = [driver_id]
+
+  if (search) {
+    query += ' AND (rides.pickup LIKE ? OR rides.destination LIKE ?)'
+    params.push(`%${search}%`, `%${search}%`)
+  }
+
+  if (date) {
+    query += ' AND DATE(rides.created_at) = ?'
+    params.push(date)
+  }
+
+  query += ' ORDER BY rides.created_at DESC'
+
+  db.query(query, params, (err, results) => {
+    if (err) return res.status(500).json({ message: 'Database error' })
+    res.json(results)
+  })
+}
+
+exports.getDriverInfo = (req, res) => {
+  const { driver_id } = req.params
+
+  db.query(
+    `SELECT users.name, drivers.vehicle, drivers.license_number
+     FROM drivers 
+     LEFT JOIN users ON drivers.user_id = users.id
+     WHERE drivers.user_id = ?`,
+    [driver_id],
+    (err, results) => {
+      if (err) return res.status(500).json({ message: 'Database error' })
+      if (results.length === 0) return res.status(404).json({ message: 'Driver not found' })
+      res.json(results[0])
     }
   )
 }

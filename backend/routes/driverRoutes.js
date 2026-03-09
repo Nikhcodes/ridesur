@@ -8,8 +8,9 @@ const {
   acceptRide,
   getCurrentRide,
   updateRideStatus,
-  getDriverRides
-
+  getDriverRides,
+  searchDriverRides,
+  getDriverInfo
 } = require('../controllers/driverController')
 
 router.get('/my-rides', auth, getDriverRides)
@@ -18,5 +19,7 @@ router.get('/requests', auth, getRideRequests)
 router.put('/accept/:id', auth, acceptRide)
 router.get('/current-ride', auth, getCurrentRide)
 router.put('/ride-status/:id', auth, updateRideStatus)
+router.get('/search-rides', auth, searchDriverRides)
+router.get('/info/:driver_id', auth, getDriverInfo)
 
 module.exports = router

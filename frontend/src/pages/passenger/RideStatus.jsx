@@ -5,6 +5,7 @@ import API from '../../api/axios'
 function RideStatus() {
   const navigate = useNavigate()
   const [ride, setRide] = useState(null)
+  const [driver, setDriver] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -12,7 +13,15 @@ function RideStatus() {
       .then(res => {
         const rides = res.data
         if (rides.length > 0) {
-          setRide(rides[0]) // most recent ride
+          const latest = rides[0]
+          setRide(latest)
+
+          // fetch driver info if ride has a driver assigned
+          if (latest.driver_id) {
+            API.get(`/drivers/info/${latest.driver_id}`)
+              .then(r => setDriver(r.data))
+              .catch(() => {})
+          }
         }
         setLoading(false)
       })
@@ -49,9 +58,7 @@ function RideStatus() {
           <h1 className="text-xl font-bold">Ride Status</h1>
         </div>
 
-        {loading && (
-          <p style={{ color: '#64748B' }}>Loading...</p>
-        )}
+        {loading && <p style={{ color: '#64748B' }}>Loading...</p>}
 
         {!loading && !ride && (
           <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: '#1E293B' }}>
@@ -95,12 +102,36 @@ function RideStatus() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span style={{ color: '#64748B' }}>Status</span>
-                  <span className="px-2 py-1 rounded-lg text-xs font-bold" style={{ backgroundColor: `${statusColor(ride.status)}20`, color: statusColor(ride.status) }}>
+                  <span
+                    className="px-2 py-1 rounded-lg text-xs font-bold"
+                    style={{ backgroundColor: `${statusColor(ride.status)}20`, color: statusColor(ride.status) }}
+                  >
                     {ride.status}
                   </span>
                 </div>
               </div>
             </div>
+
+            {/* Driver info — only show when driver is assigned */}
+            {driver && (
+              <div className="rounded-2xl p-6" style={{ backgroundColor: '#1E293B' }}>
+                <p className="font-bold mb-4">Your Driver</p>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span style={{ color: '#64748B' }}>Name</span>
+                    <span className="font-medium">{driver.name}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span style={{ color: '#64748B' }}>Vehicle</span>
+                    <span className="font-medium">{driver.vehicle || '—'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span style={{ color: '#64748B' }}>License</span>
+                    <span className="font-medium">{driver.license_number || '—'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <button
               onClick={() => navigate('/passenger/book')}
