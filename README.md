@@ -67,7 +67,7 @@ DB_HOST=localhost
 DB_USER=your_mariadb_username
 DB_PASSWORD=your_mariadb_password
 DB_NAME=ridesur
-JWT_SECRET=ridesur2025supersecretnikh
+JWT_SECRET=ridesur2026supersecret
 PORT=5000
 ```
 
