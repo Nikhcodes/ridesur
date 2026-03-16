@@ -1,13 +1,41 @@
-import axios from 'axios'
+import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://your-backend.onrender.com"
+  baseURL: "http://localhost:5000/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: false
 });
 
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem('token')
-  if (token) req.headers.Authorization = `Bearer ${token}`
-  return req
-})
+// Attach token automatically to every request
+API.interceptors.request.use(
+  (req) => {
+    const token = localStorage.getItem("token");
 
-export default API
+    if (token) {
+      req.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return req;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Optional: global response error handling
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      console.error("API Error:", error.response.data);
+    } else {
+      console.error("Network Error:", error.message);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default API;
