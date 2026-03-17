@@ -87,6 +87,12 @@ function DriverDashboard() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+  if (user && user.role !== 'driver') {
+    navigate('/' + user.role + '/dashboard')
+  }
+}, [user, navigate])
+
+  useEffect(() => {
     API.get('/drivers/status')
       .then(res => setAvailable(res.data.is_available))
       .catch(() => {})

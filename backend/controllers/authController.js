@@ -22,6 +22,18 @@ exports.register = (req, res) => {
         [name, email, hashedPassword, phone, role || 'passenger'],
         (err, result) => {
           if (err) return res.status(500).json({ message: 'Error saving user' });
+
+          // only runs if registering as driver
+          if (role === 'driver') {
+            db.query(
+              'INSERT INTO drivers (user_id, license_number, vehicle, is_available) VALUES (?, ?, ?, ?)',
+              [result.insertId, 'N/A', 'N/A', false],
+              (err) => {
+                if (err) console.error('Error creating driver profile:', err)
+              }
+            )
+          }
+
           res.status(201).json({ message: 'User registered successfully' });
         }
       );

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import API from '../../api/axios'
 
-function DriverRideHistory() {
+function RideHistory() {
   const navigate = useNavigate()
   const [rides, setRides] = useState([])
   const [loading, setLoading] = useState(true)
@@ -15,7 +15,7 @@ function DriverRideHistory() {
     if (search) params.search = search
     if (date) params.date = date
 
-    API.get('/drivers/search-rides', { params })
+    API.get('/rides/search', { params })
       .then(res => {
         setRides(res.data)
         setLoading(false)
@@ -49,7 +49,7 @@ function DriverRideHistory() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <button
-            onClick={() => navigate('/driver/dashboard')}
+            onClick={() => navigate('/passenger/dashboard')}
             className="p-2 rounded-xl"
             style={{ backgroundColor: '#1E293B' }}
           >
@@ -100,11 +100,20 @@ function DriverRideHistory() {
 
         {!loading && rides.length === 0 && (
           <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: '#1E293B' }}>
-            <div className="text-4xl mb-4">📅</div>
+            <div className="text-4xl mb-4">📋</div>
             <p className="font-bold mb-2">No rides found</p>
             <p className="text-sm" style={{ color: '#64748B' }}>
-              {search || date ? 'Try different search terms' : 'Your completed rides will appear here'}
+              {search || date ? 'Try different search terms' : 'Your ride history will appear here'}
             </p>
+            {!search && !date && (
+              <button
+                onClick={() => navigate('/passenger/book')}
+                className="mt-4 px-6 py-3 rounded-xl font-bold text-sm"
+                style={{ backgroundColor: '#FACC15', color: '#0F172A' }}
+              >
+                Book your first ride
+              </button>
+            )}
           </div>
         )}
 
@@ -117,7 +126,7 @@ function DriverRideHistory() {
                 style={{ backgroundColor: '#1E293B' }}
               >
                 <div className="flex justify-between items-start mb-3">
-                  <div className="font-bold text-sm">Ride #{ride.id}</div>
+                  <div className="text-sm font-bold">Ride #{ride.id}</div>
                   <span
                     className="px-2 py-1 rounded-lg text-xs font-bold"
                     style={{ backgroundColor: `${statusColor(ride.status)}20`, color: statusColor(ride.status) }}
@@ -127,10 +136,6 @@ function DriverRideHistory() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span style={{ color: '#64748B' }}>Passenger</span>
-                    <span>{ride.passenger_name || '—'}</span>
-                  </div>
                   <div className="flex justify-between text-sm">
                     <span style={{ color: '#64748B' }}>From</span>
                     <span>{ride.pickup}</span>
@@ -149,24 +154,15 @@ function DriverRideHistory() {
                   </div>
                 </div>
 
-                {/* Rating received */}
-                {ride.rating_score && (
-                  <div
-                    className="mt-4 p-3 rounded-xl"
-                    style={{ backgroundColor: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.12)' }}
+                {/* Rate button — only for completed rides */}
+                {ride.status === 'completed' && ride.driver_id && (
+                  <button
+                    onClick={() => navigate(`/passenger/rate/${ride.id}/${ride.driver_id}`)}
+                    className="w-full mt-4 py-2 rounded-xl text-sm font-bold"
+                    style={{ backgroundColor: 'rgba(250,204,21,0.1)', color: '#FACC15', border: '1px solid rgba(250,204,21,0.2)' }}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span style={{ color: '#FACC15' }}>
-                        {'★'.repeat(ride.rating_score)}{'☆'.repeat(5 - ride.rating_score)}
-                      </span>
-                      <span className="text-xs font-bold" style={{ color: '#FACC15' }}>
-                        {ride.rating_score}/5
-                      </span>
-                    </div>
-                    {ride.rating_comment && (
-                      <p className="text-xs" style={{ color: '#64748B' }}>"{ride.rating_comment}"</p>
-                    )}
-                  </div>
+                    ⭐ Rate this ride
+                  </button>
                 )}
 
               </div>
@@ -179,4 +175,4 @@ function DriverRideHistory() {
   )
 }
 
-export default DriverRideHistory
+export default RideHistory

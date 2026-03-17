@@ -3,11 +3,20 @@ import { useAuth } from '../../context/AuthContext'
 import Notifications from '../../components/Notifications'
 import LanguageToggle from '../../components/LanguageToggle'
 import { useLanguage } from '../../context/LanguageContext'
+import { useEffect } from 'react'
 
 function PassengerDashboard() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { t } = useLanguage()
+
+
+// redirect if not a passenger
+useEffect(() => {
+  if (user && user.role !== 'passenger') {
+    navigate('/' + user.role + '/dashboard')
+  }
+}, [user, navigate])
 
   const handleLogout = () => {
     logout()
